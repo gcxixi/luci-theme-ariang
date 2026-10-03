@@ -1,0 +1,521 @@
+/**
+ * AriaNg High-Density Design Theme for LuCI
+ * Inspired by AriaNg's structured, key-value tabular engineering layout.
+ * Copyright (C) 2026 gcxixi
+ */
+
+:root {
+  --ariang-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --ariang-font-mono: "JetBrains Mono", "SF Mono", "Fira Code", Menlo, Monaco, Consolas, monospace;
+
+  /* Color Palette - Light */
+  --bg-app: #f4f6f8;
+  --bg-surface: #ffffff;
+  --bg-sidebar: #1e2430;
+  --bg-sidebar-hover: #2b3344;
+  --bg-sidebar-active: #0ea5e9;
+  --border-color: #e2e8f0;
+  --border-light: #f1f5f9;
+  
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-sidebar: #cbd5e1;
+  --text-sidebar-active: #ffffff;
+  
+  --primary: #0284c7;
+  --primary-hover: #0369a1;
+  --primary-bg: #e0f2fe;
+  
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  --sidebar-width: 250px;
+  --topbar-height: 52px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+}
+
+[data-darkmode="true"], [data-theme="dark"] {
+  --bg-app: #0f172a;
+  --bg-surface: #1e293b;
+  --bg-sidebar: #0b0f19;
+  --bg-sidebar-hover: #1e293b;
+  --bg-sidebar-active: #0284c7;
+  --border-color: #334155;
+  --border-light: #1e293b;
+  
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-sidebar: #94a3b8;
+  --text-sidebar-active: #ffffff;
+  
+  --primary: #38bdf8;
+  --primary-hover: #7dd3fc;
+  --primary-bg: rgba(56, 189, 248, 0.12);
+}
+
+/* Base resets */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--ariang-font-sans);
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--text-main);
+  background-color: var(--bg-app);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Layout Architecture */
+#ariang-app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Left Sidebar (AriaNg Style) */
+#ariang-sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--bg-sidebar);
+  color: var(--text-sidebar);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border-color);
+  z-index: 100;
+}
+
+.ariang-brand {
+  height: var(--topbar-height);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.ariang-brand-tag {
+  margin-left: 8px;
+  background-color: var(--primary);
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-family: var(--ariang-font-mono);
+  font-weight: 600;
+}
+
+.ariang-nav {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.ariang-nav-group-title {
+  padding: 12px 16px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #64748b;
+}
+
+.ariang-nav-item > a {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  color: var(--text-sidebar);
+  text-decoration: none;
+  font-size: 13px;
+  transition: all 0.15s ease;
+  border-left: 3px solid transparent;
+}
+
+.ariang-nav-item > a:hover {
+  background-color: var(--bg-sidebar-hover);
+  color: #ffffff;
+}
+
+.ariang-nav-item.active > a {
+  background-color: var(--bg-sidebar-hover);
+  color: #ffffff;
+  border-left-color: var(--bg-sidebar-active);
+  font-weight: 600;
+}
+
+/* Main Content Area */
+#ariang-main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+#ariang-header {
+  height: var(--topbar-height);
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.ariang-page-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ariang-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#maincontent {
+  padding: 24px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* =======================================================
+   AriaNg Instant Parameter Quick-Filter Toolbar
+   ======================================================= */
+.ariang-filter-toolbar {
+  position: sticky;
+  top: 12px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(8px);
+}
+
+.ariang-search-wrap {
+  position: relative;
+  flex-grow: 1;
+}
+
+.ariang-search-input {
+  width: 100%;
+  height: 34px;
+  padding: 0 12px 0 32px;
+  font-family: var(--ariang-font-mono);
+  font-size: 13px;
+  color: var(--text-main);
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.ariang-search-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-bg);
+}
+
+.ariang-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.ariang-filter-badge {
+  font-family: var(--ariang-font-mono);
+  font-size: 12px;
+  padding: 4px 8px;
+  background-color: var(--primary-bg);
+  color: var(--primary);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.ariang-btn {
+  height: 34px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-surface);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.ariang-btn:hover {
+  background-color: var(--bg-app);
+  border-color: var(--primary);
+}
+
+.ariang-btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.ariang-btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+/* =======================================================
+   Structured Key-Value Parameter Table (AriaNg Style)
+   ======================================================= */
+.cbi-map, .cbi-section {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.cbi-section-node {
+  margin: 0;
+  padding: 0;
+}
+
+legend {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-main);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/* Tabular Grid for Parameters */
+.cbi-value {
+  display: grid !important;
+  grid-template-columns: 280px 1fr;
+  align-items: start;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-light);
+  transition: background-color 0.15s;
+}
+
+.cbi-value:last-child {
+  border-bottom: none;
+}
+
+.cbi-value:hover {
+  background-color: rgba(2, 132, 199, 0.03);
+}
+
+.cbi-value-title {
+  font-weight: 600;
+  color: var(--text-main);
+  font-size: 13px;
+  padding-right: 16px;
+  word-break: break-word;
+}
+
+.cbi-value-field {
+  width: 100%;
+}
+
+.cbi-value-description {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* Monospace Inputs for Network Parameters */
+input[type="text"], input[type="password"], select, textarea {
+  font-family: var(--ariang-font-mono);
+  font-size: 13px;
+  height: 32px;
+  padding: 0 10px;
+  color: var(--text-main);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  width: 100%;
+  max-width: 440px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+input[type="text"]:focus, select:focus, textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-bg);
+}
+
+/* Checkbox Switch */
+input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+/* Flat Tabs Navigation (AriaNg Tab-strip) */
+.cbi-tabmenu {
+  list-style: none;
+  display: flex;
+  margin: 0 0 16px 0;
+  padding: 0;
+  border-bottom: 2px solid var(--border-color);
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.cbi-tabmenu > li {
+  margin: 0;
+}
+
+.cbi-tabmenu > li > a {
+  display: inline-block;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.15s;
+}
+
+.cbi-tabmenu > li.cbi-tab > a, .cbi-tabmenu > li > a:hover {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  font-weight: 600;
+}
+
+/* Flatten Mode (When user wants to see all parameters without clicking tabs) */
+.ariang-flattened .cbi-tabcontainer {
+  display: block !important;
+  margin-bottom: 24px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border-color);
+}
+
+.ariang-flattened .cbi-tabcontainer::before {
+  content: attr(data-tab-title);
+  display: block;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--primary);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Table styling for Status / ARP / Interfaces */
+table.table, .cbi-section-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+table th, .cbi-section-table-titles th {
+  text-align: left;
+  padding: 10px 12px;
+  background-color: var(--bg-app);
+  color: var(--text-muted);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 12px;
+}
+
+table td, .cbi-section-table-row td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-light);
+  font-family: var(--ariang-font-mono);
+}
+
+/* Badges for Network Interfaces */
+.ifacebadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-color);
+  font-family: var(--ariang-font-mono);
+  font-size: 11px;
+  color: var(--text-main);
+  margin-right: 6px;
+}
+
+/* Bottom Action Bar */
+.cbi-page-actions {
+  position: sticky;
+  bottom: 0;
+  background-color: var(--bg-surface);
+  border-top: 1px solid var(--border-color);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin: 24px -24px -24px -24px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  z-index: 40;
+}
+
+.cbi-button-save, .cbi-button-apply {
+  background-color: var(--primary) !important;
+  color: #fff !important;
+  border: none !important;
+  padding: 8px 18px !important;
+  border-radius: var(--radius-sm) !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+}
+
+.cbi-button-reset {
+  background-color: transparent !important;
+  color: var(--text-muted) !important;
+  border: 1px solid var(--border-color) !important;
+  padding: 8px 18px !important;
+  border-radius: var(--radius-sm) !important;
+  cursor: pointer;
+}
+
+/* Mobile responsive */
+@media (max-width: 900px) {
+  #ariang-app-container {
+    flex-direction: column;
+  }
+  #ariang-sidebar {
+    width: 100%;
+    height: auto;
+  }
+  .cbi-value {
+    grid-template-columns: 1fr !important;
+    gap: 8px;
+  }
+}

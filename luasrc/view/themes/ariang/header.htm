@@ -1,0 +1,71 @@
+<%#
+    AriaNg High-Density Design Theme for LuCI
+    Copyright (C) 2026 gcxixi
+-%>
+<%
+    local ver = require "luci.version"
+    local disp = require "luci.dispatcher"
+    local http = require "luci.http"
+    local sys = require "luci.sys"
+
+    local hostname = sys.hostname() or "R5C Gateway"
+    local request = disp.context.path
+    local category = request[1] or "admin"
+    local cattree = disp.node()
+-%>
+<!DOCTYPE html>
+<html lang="<%=luci.i18n.context.lang%>">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title><%=hostname%> - LuCI [AriaNg Engine]</title>
+    <link rel="stylesheet" href="<%=media%>/css/cascade.css?v=<%=ver.luciversion%>">
+    <link rel="shortcut icon" href="<%=media%>/img/favicon.ico">
+    <script src="<%=media%>/js/ariang-enhancer.js?v=<%=ver.luciversion%>" defer></script>
+</head>
+<body>
+<div id="ariang-app-container">
+    <!-- Left Sidebar (AriaNg Style) -->
+    <aside id="ariang-sidebar">
+        <a class="ariang-brand" href="<%=controller%>/">
+            <span><%=hostname%></span>
+            <span class="ariang-brand-tag">AriaNg UI</span>
+        </a>
+        <ul class="ariang-nav">
+            <li class="ariang-nav-group-title">Navigation</li>
+            <%
+            local childs = disp.node_childs(cattree)
+            if #childs > 0 then
+                for _, r in ipairs(childs) do
+                    local nnode = cattree.nodes[r]
+                    local href = controller .. "/" .. category .. "/" .. r
+                    local subchilds = disp.node_childs(nnode)
+            %>
+            <li class="ariang-nav-item <%= (request[2] == r) and 'active' or '' %>">
+                <a href="<%=pcdata(href)%>">
+                    <span><%=pcdata(striptags(translate(nnode.title)))%></span>
+                </a>
+            </li>
+            <%
+                end
+            end
+            %>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div id="ariang-main">
+        <header id="ariang-header">
+            <div class="ariang-page-title">
+                <span><%=hostname%></span>
+                <span style="color:var(--text-muted); font-weight:normal;">/</span>
+                <span style="color:var(--primary);"><%= (node and node.title) and translate(node.title) or 'Settings' %></span>
+            </div>
+            <div class="ariang-top-actions">
+                <span class="ariang-badge" style="font-family:var(--ariang-font-mono); font-size:12px; color:var(--text-muted);">
+                    ⌨ Cmd+K to search
+                </span>
+            </div>
+        </header>
+
+        <main id="maincontent">
