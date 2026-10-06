@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 LUCI_TITLE:=AriaNg High-Density Design Theme for LuCI
 LUCI_DEPENDS:=
 PKG_VERSION:=1.0.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 include $(TOPDIR)/feeds/luci/luci.mk
 

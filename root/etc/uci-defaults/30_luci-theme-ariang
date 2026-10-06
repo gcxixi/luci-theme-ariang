@@ -1,6 +1,10 @@
 #!/bin/sh
 
-uci set luci.themes.AriaNg=/luci-static/ariang
-uci commit luci
+uci -q batch <<-EOF
+	set luci.themes.AriaNg=/luci-static/ariang
+	commit luci
+EOF
+
+rm -rf /tmp/luci-indexcache /tmp/luci-modulecache
 
 exit 0

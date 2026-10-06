@@ -8,7 +8,7 @@ set -e
 
 PKG_NAME="luci-theme-ariang"
 PKG_VERSION="1.0.0"
-PKG_RELEASE="1"
+PKG_RELEASE="2"
 ARCH="all"
 OUTPUT_DIR="bin"
 
@@ -29,6 +29,10 @@ mkdir -p "$OUTPUT_DIR"
 
 # Copy web static assets
 cp -r htdocs/luci-static/ariang/* "$DATA_DIR/www/luci-static/ariang/"
+# Also place cascade.css at theme root for LuCI sysauth / login page fallback
+if [ -f "htdocs/luci-static/ariang/css/cascade.css" ]; then
+  cp "htdocs/luci-static/ariang/css/cascade.css" "$DATA_DIR/www/luci-static/ariang/cascade.css"
+fi
 
 # Copy Lua templates
 if [ -d "luasrc/view/themes/ariang" ]; then
@@ -61,8 +65,13 @@ EOF
 cat <<EOF > "$CONTROL_DIR/postinst"
 #!/bin/sh
 [ -n "\$IPKG_INSTROOT" ] || {
-  uci set luci.themes.AriaNg=/luci-static/ariang
-  uci commit luci
+  uci -q batch <<-UCI_EOF
+    set luci.themes.AriaNg=/luci-static/ariang
+    commit luci
+UCI_EOF
+  rm -rf /tmp/luci-indexcache /tmp/luci-modulecache
+  [ -x /etc/init.d/rpcd ] && /etc/init.d/rpcd restart
+  [ -x /etc/init.d/uhttpd ] && /etc/init.d/uhttpd restart
 }
 exit 0
 EOF
@@ -72,8 +81,13 @@ chmod +x "$CONTROL_DIR/postinst"
 cat <<EOF > "$CONTROL_DIR/postrm"
 #!/bin/sh
 [ -n "\$IPKG_INSTROOT" ] || {
-  uci delete luci.themes.AriaNg 2>/dev/null
+  uci -q delete luci.themes.AriaNg
+  [ "\$(uci -q get luci.main.mediaurlbase)" = "/luci-static/ariang" ] && {
+    uci -q set luci.main.mediaurlbase=/luci-static/bootstrap
+  }
   uci commit luci
+  rm -rf /tmp/luci-indexcache /tmp/luci-modulecache
+  [ -x /etc/init.d/rpcd ] && /etc/init.d/rpcd restart
 }
 exit 0
 EOF
