@@ -79,16 +79,24 @@ exit 0
 EOF
 chmod +x "$CONTROL_DIR/postrm"
 
-echo "==> Compressing data and control archives..."
-tar --numeric-owner --owner=0 --group=0 -czf "$WORKDIR/data.tar.gz" -C "$DATA_DIR" .
-tar --numeric-owner --owner=0 --group=0 -czf "$WORKDIR/control.tar.gz" -C "$CONTROL_DIR" .
+export COPYFILE_DISABLE=1
+
+# OpenWrt opkg/busybox tar strictly requires ustar format and rejects 0x78 (pax extended headers)
+TAR_OPTS="--format ustar"
+if tar --version 2>&1 | grep -q "bsdtar"; then
+  TAR_OPTS="--format ustar --no-xattrs --no-mac-metadata"
+fi
+
+echo "==> Compressing data and control archives (ustar format)..."
+tar $TAR_OPTS --numeric-owner --owner=0 --group=0 -czf "$WORKDIR/data.tar.gz" -C "$DATA_DIR" .
+tar $TAR_OPTS --numeric-owner --owner=0 --group=0 -czf "$WORKDIR/control.tar.gz" -C "$CONTROL_DIR" .
 echo "2.0" > "$WORKDIR/debian-binary"
 
 IPK_FILE="${OUTPUT_DIR}/${PKG_NAME}_${PKG_VERSION}-${PKG_RELEASE}_${ARCH}.ipk"
 echo "==> Packaging into ${IPK_FILE}..."
 
 # Build tar.gz-based ipk (opkg standard)
-tar -czf "$IPK_FILE" -C "$WORKDIR" debian-binary control.tar.gz data.tar.gz
+tar $TAR_OPTS -czf "$IPK_FILE" -C "$WORKDIR" debian-binary control.tar.gz data.tar.gz
 
 echo "✓ Successfully built: ${IPK_FILE}"
 ls -lh "$IPK_FILE"
