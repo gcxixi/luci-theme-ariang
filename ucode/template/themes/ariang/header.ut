@@ -2,43 +2,88 @@
  AriaNg High-Density Design Theme for LuCI
  Copyright (C) 2026 gcxixi
 -#}
+
 {%
+	import { getuid, getspnam } from 'luci.core';
+
 	const boardinfo = ubus.call('system', 'board') ?? {};
+	const darkpref = (theme == 'ariang-dark' ? 'true' : (theme == 'ariang-light' ? 'false' : null));
+
 	http.prepare_content('text/html; charset=UTF-8');
 -%}
+
 <!DOCTYPE html>
-<html lang="{{ dispatcher.lang }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>{{ striptags(`${boardinfo.hostname ?? 'R5C Gateway'}${dispatched?.title ? ` | ${_(dispatched.title)}` : ''}`) }} - LuCI</title>
-    <link rel="stylesheet" href="{{ media }}/css/cascade.css">
-    <script src="{{ media }}/js/ariang-enhancer.js" defer></script>
-</head>
-<body>
-<div id="ariang-app-container">
-    <aside id="ariang-sidebar">
-        <a class="ariang-brand" href="{{ url('') }}">
-            <span>{{ boardinfo.hostname ?? 'R5C Gateway' }}</span>
-            <span class="ariang-brand-tag">AriaNg UI</span>
-        </a>
-        <ul class="ariang-nav" id="mainmenu">
-            <!-- LuCI JS dynamically populates items here -->
-        </ul>
-    </aside>
+<html lang="{{ dispatcher.lang }}" {{ darkpref ? `data-darkmode="${darkpref}"` : '' }}>
+	<head>
+		<meta charset="utf-8">
+		<title>{{ striptags(`${boardinfo.hostname ?? 'ImmortalWrt'}${dispatched?.title ? ` | ${_(dispatched.title)}` : ''}`) }} - LuCI</title>
+		{% if (!darkpref): %}
+			<script>
+				var mediaQuery = window.matchMedia('(prefers-color-scheme: dark)'),
+				    rootElement = document.querySelector(':root'),
+				    setDarkMode = function(match) { rootElement.setAttribute('data-darkmode', match.matches) };
 
-    <div id="ariang-main">
-        <header id="ariang-header">
-            <div class="ariang-page-title">
-                <span>{{ boardinfo.hostname ?? 'R5C Gateway' }}</span>
-                <span style="color:var(--text-muted); font-weight:normal;">/</span>
-                <span style="color:var(--primary);">{{ dispatched?.title ? _(dispatched.title) : 'Control Panel' }}</span>
-            </div>
-            <div class="ariang-top-actions">
-                <span class="ariang-badge" style="font-family:var(--ariang-font-mono); font-size:12px; color:var(--text-muted);">
-                    ⌨ Cmd+K to search
-                </span>
-            </div>
-        </header>
+				mediaQuery.addEventListener('change', setDarkMode);
+				setDarkMode(mediaQuery);
+			</script>
+		{% endif %}
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="darkreader-lock">
+		<link rel="stylesheet" href="{{ media }}/cascade.css">
+		<link rel="stylesheet" href="{{ media }}/css/cascade.css">
+		<link rel="icon" href="{{ media }}/logo_48.png" sizes="48x48">
+		<link rel="icon" href="{{ media }}/logo.svg" sizes="any">
+		{% if (dispatched?.css): %}
+		<link rel="stylesheet" href="{{ resource }}/{{ dispatched.css }}">
+		{% endif %}
+		{% if (css): %}
+		<style title="text/css">{{ css }}</style>
+		{% endif %}
+		<script src="{{ dispatcher.build_url('admin/translations', dispatcher.lang) }}"></script>
+		<script src="{{ resource }}/cbi.js"></script>
+		<script src="{{ media }}/js/ariang-enhancer.js" defer></script>
+	</head>
 
-        <main id="maincontent">
+	<body class="lang_{{ dispatcher.lang }}" data-page="{{ entityencode(join('-', length(ctx.request_path) ? ctx.request_path : ctx.path), true) }}">
+		{% if (!blank_page): %}
+		<header id="ariang-topbar">
+			<div class="ariang-brand-group">
+				<a class="brand ariang-brand" href="/">
+					<span class="ariang-brand-title">{{ striptags(boardinfo.hostname ?? 'ImmortalWrt') }}</span>
+					<span class="ariang-brand-tag">AriaNg UI</span>
+				</a>
+			</div>
+			<ul class="nav" id="topmenu" style="display:none"></ul>
+			<div id="indicators" class="pull-right"></div>
+		</header>
+
+		<div id="maincontent" class="container">
+			{% if (getuid() == 0 && getspnam('root')?.pwdp === ''): %}
+				<div class="alert-message warning">
+					<h4>{{ _('No password set!') }}</h4>
+					<p>{{ _('There is no password set on this router. Please configure a root password to protect the web interface.') }}</p>
+					{% if (dispatcher.lookup("admin/system/admin")): %}
+					  <div class="right"><a class="btn" href="{{ dispatcher.build_url("admin/system/admin") }}">{{ _('Go to password configuration...') }}</a></div>
+					{% endif %}
+				</div>
+			{% endif %}
+
+			{% if (boardinfo.rootfs_type == "initramfs"): %}
+				<div class="alert-message warning">
+					<h4>{{ _('System running in recovery (initramfs) mode.') }}</h4>
+					<p>{{ _('No changes to settings will be stored and are lost after rebooting. This mode should only be used to install a firmware upgrade') }}</p>
+					{% if (dispatcher.lookup("admin/system/flash")): %}
+					  <div class="right"><a class="btn" href="{{ dispatcher.build_url("admin/system/flash") }}">{{ _('Go to firmware upgrade...') }}</a></div>
+					{% endif %}
+				</div>
+			{% endif %}
+
+			<noscript>
+				<div class="alert-message warning">
+					<h4>{{ _('JavaScript required!') }}</h4>
+					<p>{{ _('You must enable JavaScript in your browser or LuCI will not work properly.') }}</p>
+				</div>
+			</noscript>
+
+			<div id="tabmenu" style="display:none"></div>
+		{% endif %}

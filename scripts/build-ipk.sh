@@ -8,7 +8,7 @@ set -e
 
 PKG_NAME="luci-theme-ariang"
 PKG_VERSION="1.0.0"
-PKG_RELEASE="2"
+PKG_RELEASE="3"
 ARCH="all"
 OUTPUT_DIR="bin"
 
